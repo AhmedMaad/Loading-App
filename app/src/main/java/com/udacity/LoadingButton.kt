@@ -2,9 +2,19 @@ package com.udacity
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.content.res.Resources
+import android.content.res.Resources.Theme
 import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Rect
+import android.graphics.RectF
+import android.graphics.Typeface
+import android.text.TextPaint
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
+import androidx.core.content.ContextCompat
 import kotlin.properties.Delegates
 
 class LoadingButton @JvmOverloads constructor(
@@ -19,15 +29,36 @@ class LoadingButton @JvmOverloads constructor(
 
     }
 
+    private val paint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+        style = Paint.Style.FILL
+        textAlign = Paint.Align.CENTER
+        textSize = 55.0f
+        typeface = Typeface.create("", Typeface.NORMAL)
+        color = ContextCompat.getColor(context, R.color.colorPrimary)
+    }
+
 
     init {
 
     }
 
 
-    override fun onDraw(canvas: Canvas?) {
+    override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        //Left = starting point (x)
+        //top = starting point (y)
+        val rectangle = Rect(0, 0, widthSize, heightSize)
+        canvas.drawRect(rectangle, paint)
+        paint.color = Color.WHITE
 
+        //Calculate text offset to center text vertically: https://knowledge.udacity.com/questions/438647
+        val textOffset = (paint.descent() - paint.ascent()) / 2 - paint.descent()
+        canvas.drawText(
+            context.getString(R.string.button_name),
+            widthSize.toFloat() / 2,
+            (heightSize.toFloat() / 2) + textOffset,
+            paint
+        )
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -41,6 +72,11 @@ class LoadingButton @JvmOverloads constructor(
         widthSize = w
         heightSize = h
         setMeasuredDimension(w, h)
+    }
+
+    //The performClick() method calls onClickListener()
+    override fun performClick(): Boolean {
+        return super.performClick()
     }
 
 }

@@ -9,8 +9,10 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
+import androidx.core.net.toUri
 import com.udacity.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
@@ -31,10 +33,21 @@ class MainActivity : AppCompatActivity() {
 
         registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
 
-        // TODO: Implement code below
-//        binding.custom_button.setOnClickListener {
-//            download()
-//        }
+        //Note: No need for "isClickable = true", because setOnClickListener makes the View clickable
+        binding.mainContent.customButton.setOnClickListener {
+            val checkedRBID = binding.mainContent.group.checkedRadioButtonId
+            if (checkedRBID == -1)
+                Toast.makeText(this, R.string.select_file, Toast.LENGTH_SHORT).show();
+            else {
+                val selectedFile = when (checkedRBID) {
+                    R.id.load_app_rb -> LOAD_APP_URL
+                    R.id.glide_rb -> GLIDE_URL
+                    else -> RETROFIT_URL
+                }
+                download(selectedFile)
+            }
+
+        }
     }
 
     private val receiver = object : BroadcastReceiver() {
@@ -43,9 +56,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun download() {
+    private fun download(selectedFile: String) {
         val request =
-            DownloadManager.Request(Uri.parse(URL))
+            DownloadManager.Request(selectedFile.toUri())
                 .setTitle(getString(R.string.app_name))
                 .setDescription(getString(R.string.app_description))
                 .setRequiresCharging(false)
@@ -58,8 +71,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     companion object {
-        private const val URL =
-            "https://github.com/udacity/nd940-c3-advanced-android-programming-project-starter/archive/master.zip"
+        private const val LOAD_APP_URL =
+            "https://github.com/udacity/nd940-c3-advanced-android-programming-project-starter"
+        private const val GLIDE_URL = "https://github.com/bumptech/glide"
+        private const val RETROFIT_URL = "https://github.com/square/retrofit"
+
         private const val CHANNEL_ID = "channelId"
     }
 }
